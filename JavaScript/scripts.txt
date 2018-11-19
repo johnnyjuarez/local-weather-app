@@ -1,0 +1,110 @@
+// Run function on DOM load
+document.addEventListener("DOMContentLoaded", function () {
+    // Global Scope variables
+    let lat;
+    let lon;
+    let city;
+    let temp;
+    let minTemp;
+    let maxTemp;
+    let c;
+    let minC;
+    let maxC;
+    let f;
+    let minF;
+    let maxF;
+    let weatherType;
+    let windSPeed;
+    let humidity;
+    // Determine if browser can access geolocation(gps)
+    if (navigator.geolocation) {
+        // If geolocation(gps) is detected, pull coordinates
+        navigator.geolocation.getCurrentPosition(function (position) {
+            lat = position.coords.latitude;
+            lon = position.coords.longitude;
+
+            // Concatenate lon and lat into the weather api
+            let url = "https://fcc-weather-api.glitch.me/api/current?lat=" + lat + "&lon=" + lon;
+            // Begin our API call
+            let request = new XMLHttpRequest();
+            request.open("GET", url, true);
+            request.onload = function () {
+                data = JSON.parse(this.response);
+                //  set our variable to represent the pieces of data we need from the api
+                city = data.name;
+                temp = data.main.temp;
+                minTemp = data.main.temp_min;
+                maxTemp = data.main.temp_max;
+                c = temp + " °C"
+                minC = minTemp + " °C";
+                maxC = maxTemp + " °C";
+                f = (temp * 1.8 + 32).toFixed(1) + " °F";
+                minF = (minTemp * 1.8 + 32).toFixed(1) + " °F";
+                maxF = (maxTemp * 1.8 + 32).toFixed(1) + " °F";
+                console.log(f);
+                humidity = data.main.humidity;
+                windSpeed = data.wind.speed;
+            
+                
+                //  Tempswap variable we'll use later for a button to switch between Celsius and Farhenheit
+                let tempSwap = true;
+                // Inputing the data into HTML
+                // City / Humidity / Wind
+                document.getElementById("name").textContent = "City: " + city;
+                document.getElementById("humidity").textContent = "Humidity: " + humidity + "%";
+                document.getElementById("windSpeed").textContent = "Wind speed: " + windSpeed + "mph";
+
+                function change() {
+                    function background() {
+                        console.log("background has not changed")
+                    if (f > 90) {
+                        document.body.classList.remove("warm");
+                        document.body.classList.remove("gloomy");
+                        document.body.classList.remove("cold");
+                        document.body.classList.remove("icy");
+                        document.body.classList.add("hot");
+                        console.log("background changed to represent heat")
+                    } else if (f > 80) {
+                        document.body.classList.remove("hot");
+                        document.body.classList.remove("gloomy");
+                        document.body.classList.remove("cold");
+                        document.body.classList.remove("icy");
+                        document.body.classList.add("warm");
+                        console.log("background changed for warm");
+                    } else if (f > 60) {
+                        document.body.classList.remove("warm");
+                        document.body.classList.remove("hot");
+                        document.body.classList.remove("cold");
+                        document.body.classList.remove("icy");
+                        document.body.classList.add("gloomy");
+                        console.log("cold")
+                    }
+                }
+                background();
+                    // Fahrenheit
+                    if (tempSwap === true) {
+                        document.getElementById("c").textContent = "Current Temp: " + f;
+                        document.getElementById("minC").textContent = "Todays Low: " + minF;
+                        document.getElementById("maxC").textContent = "Todays High: " + maxF;
+                        tempSwap = false;
+                        console.log("Fahrenheit");
+                    } else {
+                        // Celsius
+                        document.getElementById("c").textContent = c;
+                        document.getElementById("minC").textContent = minC;
+                        document.getElementById("maxC").textContent = maxC;
+                        tempSwap = true;
+                        console.log("Celsius");
+                    }
+                }
+            
+                change();
+                document.getElementById("tempSwap").addEventListener("click", change);
+            }
+            request.send(null);
+
+        })
+    }
+
+
+});
